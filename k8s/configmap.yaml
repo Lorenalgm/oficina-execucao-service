@@ -1,0 +1,25 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: execucao-config
+  labels:
+    app.kubernetes.io/part-of: oficina-execucao
+data:
+  APP_NAME: "oficina-execucao-service"
+  APP_ENV: "production"
+  APP_DEBUG: "false"
+  LOG_CHANNEL: "stderr"
+  LOG_STDERR_FORMATTER: "Monolog\\Formatter\\JsonFormatter"
+  LOG_LEVEL: "info"
+  DB_CONNECTION: "sqlite"
+  DB_DATABASE: ":memory:"
+  CACHE_STORE: "array"
+  SESSION_DRIVER: "array"
+  QUEUE_CONNECTION: "sync"
+  MONGO_DATABASE: "execucao"
+  RABBITMQ_HOST: "rabbitmq"
+  RABBITMQ_PORT: "5672"
+  RABBITMQ_VHOST: "oficina"
+  RABBITMQ_USER: "execucao"
+  MENSAGERIA_FILA: "execucao.comandos"
+  EXECUCAO_CAPACIDADE_POR_FILIAL: "5"

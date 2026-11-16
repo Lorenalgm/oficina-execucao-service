@@ -1,0 +1,81 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: execucao-worker
+  labels:
+    app.kubernetes.io/name: execucao-worker
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: execucao-worker
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: execucao-worker
+    spec:
+      enableServiceLinks: false
+      terminationGracePeriodSeconds: 30
+      containers:
+        - name: consumidor
+          image: ghcr.io/lorenalgm/oficina-execucao-service:latest
+          imagePullPolicy: IfNotPresent
+          args: ["php", "artisan", "mensageria:consumir"]
+          envFrom: &env
+            - configMapRef:
+                name: execucao-config
+            - secretRef:
+                name: execucao-secrets
+          env:
+            - name: RABBITMQ_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: plataforma-secrets
+                  key: RABBITMQ_EXECUCAO_PASSWORD
+            - name: MONGO_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: plataforma-secrets
+                  key: MONGO_EXECUCAO_PASSWORD
+            - name: MONGO_URI
+              value: "mongodb://execucao:$(MONGO_PASSWORD)@mongodb:27017/execucao"
+            - name: MENSAGERIA_HEARTBEAT
+              value: /tmp/consumidor.heartbeat
+          livenessProbe:
+            exec:
+              command: ["sh", "-c", "test -n \"$(find /tmp/consumidor.heartbeat -mmin -1)\""]
+            initialDelaySeconds: 60
+            periodSeconds: 30
+          resources: &recursos
+            requests:
+              cpu: 50m
+              memory: 96Mi
+            limits:
+              cpu: 300m
+              memory: 192Mi
+        - name: outbox
+          image: ghcr.io/lorenalgm/oficina-execucao-service:latest
+          imagePullPolicy: IfNotPresent
+          args: ["php", "artisan", "outbox:publicar", "--loop"]
+          envFrom: *env
+          env:
+            - name: RABBITMQ_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: plataforma-secrets
+                  key: RABBITMQ_EXECUCAO_PASSWORD
+            - name: MONGO_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: plataforma-secrets
+                  key: MONGO_EXECUCAO_PASSWORD
+            - name: MONGO_URI
+              value: "mongodb://execucao:$(MONGO_PASSWORD)@mongodb:27017/execucao"
+            - name: MENSAGERIA_HEARTBEAT
+              value: /tmp/outbox.heartbeat
+          livenessProbe:
+            exec:
+              command: ["sh", "-c", "test -n \"$(find /tmp/outbox.heartbeat -mmin -1)\""]
+            initialDelaySeconds: 60
+            periodSeconds: 30
+          resources: *recursos
