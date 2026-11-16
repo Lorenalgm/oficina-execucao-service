@@ -59,7 +59,7 @@ class MongoExecucaoRepository implements ExecucaoRepository, OutboxStore
         return true;
     }
 
-    public function salvarComEvento(Execucao $execucao, Envelope $evento): void
+    public function salvarComEventos(Execucao $execucao, Envelope ...$eventos): void
     {
         $this->colecao->updateOne(['_id' => $execucao->id], [
             '$set' => [
@@ -67,7 +67,7 @@ class MongoExecucaoRepository implements ExecucaoRepository, OutboxStore
                 'linha_do_tempo' => $execucao->linhaDoTempo(),
                 'atualizado_em' => new UTCDateTime(),
             ],
-            '$push' => ['outbox' => $this->item($evento)],
+            '$push' => ['outbox' => ['$each' => array_map(fn (Envelope $e) => $this->item($e), $eventos)]],
         ]);
     }
 
