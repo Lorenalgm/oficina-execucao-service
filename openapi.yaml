@@ -1,0 +1,71 @@
+openapi: 3.0.3
+info:
+  title: Oficina Execução Service
+  version: 1.0.0
+  description: Fila de execução e avanço das etapas da OS. Rotas protegidas pelo JWT da Lambda de autenticação.
+components:
+  securitySchemes:
+    jwt: { type: http, scheme: bearer, bearerFormat: JWT }
+  schemas:
+    Execucao:
+      type: object
+      properties:
+        execucao_id: { type: string, format: uuid }
+        os_id: { type: integer }
+        filial: { type: string, example: MATRIZ }
+        status: { type: string, enum: [na_fila, em_diagnostico, em_reparo, finalizada, rejeitada] }
+        veiculo: { type: object, properties: { placa: { type: string } } }
+        servicos: { type: array, items: { type: object, properties: { descricao: { type: string } } } }
+        linha_do_tempo:
+          type: array
+          items: { type: object, properties: { status: { type: string }, em: { type: string, format: date-time } } }
+security: [{ jwt: [] }]
+paths:
+  /api/execucoes:
+    get:
+      summary: Fila ativa
+      parameters:
+        - { name: filial, in: query, required: false, schema: { type: string } }
+      responses:
+        '200':
+          description: Execuções ativas, mais antigas primeiro
+          content:
+            application/json:
+              schema: { type: object, properties: { data: { type: array, items: { $ref: '#/components/schemas/Execucao' } } } }
+        '401': { description: Sem token ou token inválido }
+  /api/execucoes/{osId}:
+    get:
+      summary: Detalhe da execução de uma OS
+      parameters:
+        - { name: osId, in: path, required: true, schema: { type: integer } }
+      responses:
+        '200':
+          description: Execução
+          content:
+            application/json:
+              schema: { type: object, properties: { data: { $ref: '#/components/schemas/Execucao' } } }
+        '404': { description: OS sem execução }
+  /api/execucoes/{osId}/status:
+    patch:
+      summary: Avançar etapa
+      description: Publica execucao.evt.status-alterado; em finalizada, também execucao.evt.finalizada.
+      parameters:
+        - { name: osId, in: path, required: true, schema: { type: integer } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [status]
+              properties:
+                status: { type: string, enum: [em_diagnostico, em_reparo, finalizada] }
+      responses:
+        '200':
+          description: Etapa atualizada
+          content:
+            application/json:
+              schema: { type: object, properties: { data: { $ref: '#/components/schemas/Execucao' } } }
+        '404': { description: OS sem execução }
+        '409': { description: Etapa fora de ordem }
+        '422': { description: Status inválido }
