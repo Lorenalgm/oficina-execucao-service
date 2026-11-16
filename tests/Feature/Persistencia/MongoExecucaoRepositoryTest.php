@@ -69,14 +69,14 @@ class MongoExecucaoRepositoryTest extends TestCase
         $this->assertCount(2, $this->repositorio->fila(null));
     }
 
-    public function test_salvar_com_evento_atualiza_status_e_empilha_na_outbox(): void
+    public function test_salvar_com_eventos_atualiza_status_e_empilha_na_outbox(): void
     {
         $saga = Envelope::novoUuid();
         $execucao = $this->execucao($saga);
         $this->repositorio->registrarNova($execucao, $this->evento($saga));
         $execucao->avancarPara(StatusExecucao::EmDiagnostico, new DateTimeImmutable());
 
-        $this->repositorio->salvarComEvento($execucao, $this->evento($saga, 'execucao.evt.status-alterado'));
+        $this->repositorio->salvarComEventos($execucao, $this->evento($saga, 'execucao.evt.status-alterado'));
 
         $this->assertSame(StatusExecucao::EmDiagnostico, $this->repositorio->buscarPorOs(42)->status());
         $this->assertCount(2, $this->repositorio->pendentes(10));
@@ -89,7 +89,7 @@ class MongoExecucaoRepositoryTest extends TestCase
         $primeiro = $this->evento($saga);
         $this->repositorio->registrarNova($execucao, $primeiro);
         $execucao->avancarPara(StatusExecucao::EmDiagnostico, new DateTimeImmutable());
-        $this->repositorio->salvarComEvento($execucao, $this->evento($saga, 'execucao.evt.status-alterado'));
+        $this->repositorio->salvarComEventos($execucao, $this->evento($saga, 'execucao.evt.status-alterado'));
         $broker = new FakeBroker();
         $relay = new OutboxRelay($broker, $this->repositorio, 'oficina');
 

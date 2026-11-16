@@ -9,7 +9,7 @@ interface ExecucaoRepository
     /** Grava a execução e o evento de resposta; false se o comando da Saga já tinha sido tratado. */
     public function registrarNova(Execucao $execucao, Envelope $evento): bool;
 
-    public function salvarComEvento(Execucao $execucao, Envelope $evento): void;
+    public function salvarComEventos(Execucao $execucao, Envelope ...$eventos): void;
 
     public function buscarPorOs(int $osId): ?Execucao;
 
