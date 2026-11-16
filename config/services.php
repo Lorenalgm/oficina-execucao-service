@@ -24,6 +24,11 @@ return [
         'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
     ],
 
+    'mongo' => [
+        'uri' => env('MONGO_URI', 'mongodb://127.0.0.1:27017'),
+        'database' => env('MONGO_DATABASE', 'execucao'),
+    ],
+
     'resend' => [
         'key' => env('RESEND_KEY'),
     ],
