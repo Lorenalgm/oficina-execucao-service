@@ -75,10 +75,13 @@ jobs:
         run: aws eks update-kubeconfig --region "${{ vars.AWS_REGION || 'us-east-1' }}" --name "${{ vars.EKS_CLUSTER_NAME || 'oficina-eks' }}"
 
       - name: Secret do serviço
+        env:
+          APP_KEY: ${{ secrets.APP_KEY }}
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
         run: |
           kubectl -n oficina create secret generic execucao-secrets \
-            --from-literal=APP_KEY="${{ secrets.APP_KEY }}" \
-            --from-literal=JWT_SECRET="${{ secrets.JWT_SECRET }}" \
+            --from-literal=APP_KEY="$APP_KEY" \
+            --from-literal=JWT_SECRET="$JWT_SECRET" \
             --dry-run=client -o yaml | kubectl apply -f -
 
       - name: Manifestos e índices
