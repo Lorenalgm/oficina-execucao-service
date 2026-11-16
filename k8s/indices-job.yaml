@@ -1,0 +1,36 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: execucao-indices
+  labels:
+    app.kubernetes.io/name: execucao-indices
+spec:
+  backoffLimit: 10
+  ttlSecondsAfterFinished: 600
+  template:
+    spec:
+      enableServiceLinks: false
+      restartPolicy: OnFailure
+      containers:
+        - name: indices
+          image: ghcr.io/lorenalgm/oficina-execucao-service:latest
+          imagePullPolicy: IfNotPresent
+          args: ["php", "artisan", "mongo:indices"]
+          envFrom:
+            - configMapRef:
+                name: execucao-config
+            - secretRef:
+                name: execucao-secrets
+          env:
+            - name: RABBITMQ_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: plataforma-secrets
+                  key: RABBITMQ_EXECUCAO_PASSWORD
+            - name: MONGO_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: plataforma-secrets
+                  key: MONGO_EXECUCAO_PASSWORD
+            - name: MONGO_URI
+              value: "mongodb://execucao:$(MONGO_PASSWORD)@mongodb:27017/execucao"
