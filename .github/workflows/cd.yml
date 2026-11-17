@@ -97,5 +97,4 @@ jobs:
 
       - name: Smoke test
         run: |
-          kubectl -n oficina run execucao-smoke --image=curlimages/curl:8.11.1 --restart=Never --rm -i --quiet \
-            --command -- curl -fsS http://execucao-api/up
+          kubectl -n oficina exec deploy/execucao-api -- curl -fsS http://localhost:8080/up
