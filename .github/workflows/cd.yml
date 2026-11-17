@@ -30,7 +30,7 @@ jobs:
           php artisan key:generate
 
       - name: Testes
-        run: php artisan test
+        run: php artisan test --no-coverage
 
   imagem:
     name: Imagem (GHCR)
