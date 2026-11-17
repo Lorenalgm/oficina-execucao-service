@@ -35,7 +35,7 @@ Etapas: `na_fila → em_diagnostico → em_reparo → finalizada`, uma por vez. 
 
 ## Rotas
 
-Protegidas pelo JWT da [Lambda de autenticação](https://github.com/Lorenalgm/oficina-auth-lambda). Documentadas em [`openapi.yaml`](openapi.yaml).
+Protegidas pelo JWT da [Lambda de autenticação](https://github.com/Lorenalgm/oficina-auth-lambda). Documentadas no [readme.io](https://lorenalgm.readme.io/reference) (junto com as do OS e do Billing) e em [`openapi.yaml`](openapi.yaml).
 
 | Rota | Uso |
 |---|---|
