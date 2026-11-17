@@ -5,7 +5,7 @@ metadata:
   labels:
     app.kubernetes.io/name: execucao-api
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app.kubernetes.io/name: execucao-api
@@ -79,7 +79,7 @@ spec:
     apiVersion: apps/v1
     kind: Deployment
     name: execucao-api
-  minReplicas: 2
+  minReplicas: 1
   maxReplicas: 5
   metrics:
     - type: Resource
