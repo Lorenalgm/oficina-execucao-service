@@ -49,7 +49,7 @@ Protegidas pelo JWT da [Lambda de autenticação](https://github.com/Lorenalgm/o
 
 - Cobertura medida no CI a cada PR, com **mínimo de 80%** (`php artisan test --coverage --min=80`); abaixo disso o PR não passa.
 - Relatório completo no [SonarCloud](https://sonarcloud.io/summary/overall?id=Lorenalgm_oficina-execucao-service), com quality gate.
-- Testes unitários em `tests/Unit` e de integração em `tests/Feature` (RabbitMQ e banco reais no CI).
+- Testes unitários em `tests/Unit` e de integração em `tests/Feature` (RabbitMQ e MongoDB reais no CI).
 - O fluxo completo da Saga é testado com BDD no [OS Service](https://github.com/Lorenalgm/oficina_mecanica/blob/main/features/saga_os.feature).
 
 ## Rodar localmente
